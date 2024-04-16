@@ -8,10 +8,11 @@
 import SwiftUI
 
 struct Home: View {
+    @EnvironmentObject var modelData: ModelData
+    
     @State var searchText: String = ""
     @State var firstLineHeights: [CGFloat] = []
     @State var secondLineHeights: [CGFloat] = []
-    @State var dummyPopos: [Popo] = Popo.dummyPopos
     
     var body: some View {
         NavigationStack {
@@ -57,11 +58,11 @@ extension Home {
     }
     
     var firstLine: [Popo] {
-        return dummyPopos.enumerated().filter{ $0.offset % 2 == 0 }.map{ $0.element }
+        return modelData.popos.enumerated().filter{ $0.offset % 2 == 0 }.map{ $0.element }
     }
     
     var secondLine: [Popo] {
-        return dummyPopos.enumerated().filter{ $0.offset % 2 != 0 }.map{ $0.element }
+        return modelData.popos.enumerated().filter{ $0.offset % 2 != 0 }.map{ $0.element }
     }
     
     var popoList: some View {
@@ -99,23 +100,23 @@ extension Home {
         var firstLineSum: CGFloat = 0.0
         var secondLineSum: CGFloat = 0.0
         
-        for i in dummyPopos.indices {
-            dummyPopos[i].height = CGFloat.random(in: 160...280)
+        for i in modelData.popos.indices {
+            modelData.popos[i].height = CGFloat.random(in: 160...280)
             if (i % 2) == 0 {
-                firstLineSum += dummyPopos[i].height
+                firstLineSum += modelData.popos[i].height
             } else {
-                secondLineSum += dummyPopos[i].height
+                secondLineSum += modelData.popos[i].height
             }
         }
         
         let firstIsLong = firstLineSum > secondLineSum
         let offset = firstIsLong ? (secondLineSum+40)/firstLineSum : (firstLineSum+40)/secondLineSum
         
-        for i in dummyPopos.indices {
+        for i in modelData.popos.indices {
             if firstIsLong && i % 2 == 0 {
-                dummyPopos[i].height *= offset
+                modelData.popos[i].height *= offset
             } else if !firstIsLong && i % 2 != 0 {
-                dummyPopos[i].height *= offset
+                modelData.popos[i].height *= offset
             }
         }
     }
@@ -123,4 +124,5 @@ extension Home {
 
 #Preview {
     Home()
+        .environmentObject(ModelData())
 }
