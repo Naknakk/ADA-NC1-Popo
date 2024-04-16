@@ -19,8 +19,6 @@ struct Home: View {
                 Divider()
                 popoList
             }
-            .navigationTitle("")
-            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     header
