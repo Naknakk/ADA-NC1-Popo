@@ -14,34 +14,71 @@ struct PopoCard: View {
     
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            
-            Image(popo.imageName)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: width, height: height)
-               
-            
-            LinearGradient(colors: [.black.opacity(0.75), .black.opacity(0)],
-                           startPoint: .bottom,
-                           endPoint: .center)
-            
-            VStack(alignment: .leading) {
-                Text(popo.name)
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundStyle(.white)
-                Text(popo.keyword)
-                    .font(.caption)
-                    .fontWeight(.regular)
-                    .foregroundStyle(.white.opacity(0.80))
-                    .lineLimit(2)
+            ZStack(alignment: .topTrailing) {
+                background
+                
             }
-            .padding([.horizontal], 8)
-            .padding(.bottom, 8)
+            description
         }
         .frame(width: width, height: height)
         .background()
         .clipShape(RoundedRectangle(cornerRadius: 15))
+    }
+}
+
+extension PopoCard {
+    var background: some View {
+        ZStack {
+            Image(popo.imageName)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: width, height: height)
+            
+            LinearGradient(colors: [.popoBlack.opacity(0.6), .popoBlack.opacity(0)],
+                           startPoint: .bottom,
+                           endPoint: .center)
+            
+            RadialGradient(colors: [.popoBlack.opacity(0), .popoBlack],
+                           center: .center,
+                           startRadius: width/4,
+                           endRadius: (width+height)/2)
+        }
+    }
+    
+    var likeSymbol: some View {
+        RoundedRectangle(cornerRadius: 5)
+            .frame(width: 20, height: 20)
+            .foregroundStyle(.popoPink)
+            .overlay {
+                Image(systemName: "heart.fill")
+                    .font(.system(size: 14))
+                    .foregroundStyle(.popoBrown30)
+            }
+            .padding(.bottom, 5)
+    }
+    
+    var description: some View {
+        VStack(alignment: .leading) {
+            HStack(alignment: .bottom, spacing: 6) {
+                Text(popo.name)
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.popoBrown30)
+                    .lineLimit(1)
+                if popo.isLiked {
+                    likeSymbol
+                }
+            }
+            
+            Text(popo.keyword)
+                .font(.caption)
+                .fontWeight(.regular)
+                .foregroundStyle(.popoBrown30.opacity(0.80))
+                .lineLimit(2)
+                .multilineTextAlignment(.leading)
+        }
+        .padding([.horizontal], 8)
+        .padding(.bottom, 8)
     }
 }
 
