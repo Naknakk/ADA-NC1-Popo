@@ -16,7 +16,9 @@ struct PopoCard: View {
         ZStack(alignment: .bottomLeading) {
             ZStack(alignment: .topTrailing) {
                 background
-                
+                if popo.isLiked {
+                    likeSymbol
+                }
             }
             description
         }
@@ -29,7 +31,7 @@ struct PopoCard: View {
 extension PopoCard {
     var background: some View {
         ZStack {
-            Image(popo.imageName)
+            popo.image
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: width, height: height)
@@ -38,7 +40,7 @@ extension PopoCard {
                            startPoint: .bottom,
                            endPoint: .center)
             
-            RadialGradient(colors: [.popoBlack.opacity(0), .popoBlack],
+            RadialGradient(colors: [.popoBlack.opacity(0), .popoBlack.opacity(0.6)],
                            center: .center,
                            startRadius: width/4,
                            endRadius: (width+height)/2)
@@ -46,15 +48,16 @@ extension PopoCard {
     }
     
     var likeSymbol: some View {
-        RoundedRectangle(cornerRadius: 5)
-            .frame(width: 20, height: 20)
+        RoundedRectangle(cornerRadius: 9)
+            .frame(width: 24, height: 24)
             .foregroundStyle(.popoPink)
             .overlay {
                 Image(systemName: "heart.fill")
                     .font(.system(size: 14))
                     .foregroundStyle(.popoBrown30)
+                    .shadow(color: .popoBlack.opacity(0.4), radius: 1)
             }
-            .padding(.bottom, 5)
+            .padding(8)
     }
     
     var description: some View {
@@ -65,9 +68,8 @@ extension PopoCard {
                     .fontWeight(.bold)
                     .foregroundStyle(.popoBrown30)
                     .lineLimit(1)
-                if popo.isLiked {
-                    likeSymbol
-                }
+                    .minimumScaleFactor(0.5)
+               
             }
             
             Text(popo.keyword)

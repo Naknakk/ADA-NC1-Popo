@@ -18,31 +18,5 @@ enum SortType: String, CaseIterable {
         }
     }
     
-    static func sortByLikeAndName(_ input: [Popo]) -> [Popo] {
-        return input.sorted {
-            $0.likePriority > $1.likePriority
-        }.sorted {
-            if ($0.likePriority, $1.likePriority) == (.high, .high) {
-                return $0.name < $1.name
-            } else if ($0.likePriority, $1.likePriority) == (.high, .low) {
-                return false
-            } else if ($0.likePriority, $1.likePriority) == (.low, .low) {
-                return $0.name < $1.name
-            } else {
-                return false
-            }
-        }
-    }
     
-    static func sortByName(_ input: [Popo]) -> [Popo] {
-       return input.sorted {
-            $0.name < $1.name
-        }
-    }
-    
-    static func sortByDate(_ input: [Popo]) -> [Popo] {
-        return input.sorted {
-            $0.modifiedDate > $1.modifiedDate
-        }
-    }
 }

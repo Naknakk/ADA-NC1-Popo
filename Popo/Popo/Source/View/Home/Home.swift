@@ -12,6 +12,8 @@ struct Home: View {
     
     @State var sortType: SortType = .like
     @State var searchText: String = ""
+    @State var showRegisterSheet: Bool = false
+    @State var viewDidLoad: Bool = false
     
     var body: some View {
         NavigationStack {
@@ -19,6 +21,8 @@ struct Home: View {
                 Divider()
                 popoList
             }
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
             .background(Color.popoBrown30)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -29,6 +33,10 @@ struct Home: View {
                 }
             }
             .searchable(text: $searchText)
+            .fullScreenCover(isPresented: $showRegisterSheet) {
+                PopoRegist()
+                    .presentationDetents([.large])
+            }
         }
     }
 }
@@ -62,7 +70,7 @@ extension Home {
     
     var addPersonButton: some View {
         Button {
-            print("Add Person")
+            showRegisterSheet = true
         } label: {
             Image(systemName: "person.badge.plus")
         }
@@ -73,7 +81,7 @@ extension Home {
             ScrollView(.vertical) {
                 VStack(spacing: 0) {
                     Rectangle()
-                        .frame(height: 12)
+                        .frame(height: 0)
                         .foregroundStyle(.clear)
                     HStack(alignment: .top, spacing: 8) {
                         let cardWidth = (proxy.size.width - 24 - 8) / 2
@@ -86,6 +94,20 @@ extension Home {
                                     PopoCard(popo: popo,
                                              width: cardWidth,
                                              height: popo.height)
+                                }.contextMenu {
+                                    Button(action: {
+                                        // 여기에 첫 번째 메뉴 항목을 눌렀을 때의 액션을 정의
+                                        print("첫 번째 메뉴 액션 실행")
+                                    }) {
+                                        Label("첫 번째 메뉴", systemImage: "star")
+                                    }
+                                    
+                                    Button(action: {
+                                        // 여기에 두 번째 메뉴 항목을 눌렀을 때의 액션을 정의
+                                        print("두 번째 메뉴 액션 실행")
+                                    }) {
+                                        Label("두 번째 메뉴", systemImage: "flag")
+                                    }
                                 }
                                 
                             }
@@ -98,22 +120,47 @@ extension Home {
                                     PopoCard(popo: popo,
                                              width: cardWidth,
                                              height: popo.height)
+                                }.contextMenu {
+                                    Button(action: {
+                                        // 여기에 첫 번째 메뉴 항목을 눌렀을 때의 액션을 정의
+                                        print("첫 번째 메뉴 액션 실행")
+                                    }) {
+                                        Label("첫 번째 메뉴", systemImage: "star")
+                                    }
+                                    
+                                    Button(action: {
+                                        // 여기에 두 번째 메뉴 항목을 눌렀을 때의 액션을 정의
+                                        print("두 번째 메뉴 액션 실행")
+                                    }) {
+                                        Label("두 번째 메뉴", systemImage: "flag")
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+            .contentMargins([.top, .bottom], 16, for: .scrollContent)
+            
         }
         .onAppear {
+            viewDidLoad = true
+        }
+        .onChange(of: modelData.popos.count) { _, _ in
             withAnimation(.easeInOut) {
-                sortPopos()
+                modelData.sortPopos(sortType: sortType)
+                setHeights()
+            }
+        }
+        .onChange(of: viewDidLoad) { _, _ in
+            withAnimation(.easeInOut) {
+                modelData.sortPopos(sortType: sortType)
                 setHeights()
             }
         }
         .onChange(of: sortType) { _, _ in
             withAnimation(.easeInOut) {
-                sortPopos()
+                modelData.sortPopos(sortType: sortType)
                 setHeights()
             }
         }
@@ -121,6 +168,7 @@ extension Home {
 }
 
 extension Home {
+    
     var firstLine: [Popo] {
         return modelData.popos.enumerated().filter{ $0.offset % 2 == 0 }.map{ $0.element }
     }
@@ -134,17 +182,6 @@ extension Home {
         
         for i in modelData.popos.indices {
             modelData.popos[i].height = heights[i]
-        }
-    }
-    
-    func sortPopos() {
-        switch sortType {
-        case .like :
-            modelData.popos = SortType.sortByLikeAndName(modelData.popos)
-        case .name:
-            modelData.popos = SortType.sortByName(modelData.popos)
-        case .latest:
-            modelData.popos = SortType.sortByDate(modelData.popos)
         }
     }
 }
