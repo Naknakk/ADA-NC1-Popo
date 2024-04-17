@@ -11,24 +11,37 @@ struct PopoRegist: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject var modelData: ModelData
     
-    @State private var popo: Popo = Popo()
+    @Binding var popo: Popo
+    @Binding var editTargetIndex: Int?
+    @Binding var needResort: Bool
+    
     @State private var isImagePickerDisplayed = false
-    @State private var image: Image? = nil
+    @State var image: Image? = nil
     
     var body: some View {
         NavigationStack {
             ScrollView(.vertical) {
                 VStack(alignment: .leading, spacing: 24) {
                     imagePicker
-                    nameTextFieldSection
-                    keywordTextFieldSection
+                    textfieldSection(text: $popo.name,
+                                     textLimit: 10,
+                                     sectionTitle: "이름",
+                                     caption: "애정을 담은 별명도 좋습니다.",
+                                     placeHolder: "이름을 입력해주세요.",
+                                     isEssential: true)
+                    textfieldSection(text: $popo.keyword,
+                                     textLimit: 30,
+                                     sectionTitle: "키워드",
+                                     caption: "그 사람을 표현할 간단한 키워드를 나열해주면 됩니다.",
+                                     placeHolder: "ex) 초록, 빈티지, 최고 ENFP, ...",
+                                     isEssential: false)
                     likeSection
                     Spacer()
                 }
                 .padding()
             }
             .background(Color.popoBrown30)
-            .navigationTitle("나의 Popo 추가하기")
+            .navigationTitle(editTargetIndex == nil ? "나의 Popo 추가하기" : "수정하기")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -51,19 +64,7 @@ extension PopoRegist {
                 isImagePickerDisplayed = true
             } label : {
                 ZStack(alignment: .bottomTrailing) {
-                    Rectangle()
-                        .frame(width: 150, height: 200)
-                        .foregroundStyle(.gray.opacity(0.3))
-                        .overlay {
-                            Image(systemName: "person.fill")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 40, height: 40)
-                                .foregroundStyle(.white.opacity(0.85))
-                        }
-                        .clipShape(RoundedRectangle(cornerRadius: 15))
-                    
-                    image?
+                    popo.image
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 150, height: 200)
@@ -88,19 +89,21 @@ extension PopoRegist {
         }
     }
     
-    var nameTextFieldSection: some View {
-        VStack(alignment: .leading, spacing: 4) {
+    func textfieldSection(text: Binding<String>, textLimit: Int, sectionTitle: String, caption: String, placeHolder: String, isEssential: Bool) -> some View {
+        return VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 2) {
-                Text("이름")
-                Text("*")
-                    .foregroundStyle(.popoPink)
+                Text(sectionTitle)
+                if isEssential {
+                    Text("*")
+                        .foregroundStyle(.popoPink)
+                }
             }
             .font(.headline)
            
-            Text("애정을 담은 별명도 좋습니다.")
+            Text(caption)
                 .font(.caption)
                 .foregroundStyle(.popoBlack.opacity(0.6))
-            TextField("이름을 입력해주세요.", text: $popo.name)
+            TextField(placeHolder, text: text)
                 .font(.system(size: 16))
                 .padding(.vertical, 8)
                 .padding(.horizontal, 6)
@@ -112,59 +115,27 @@ extension PopoRegist {
                         .foregroundStyle(.popoBlack.opacity(0.6))
                 }
                 .padding(.top, 4)
-                .onChange(of: popo.name) { _, _ in
-                    if popo.name.count > 10 {
-                        popo.name = String(popo.name.prefix(10))
-                        HapticManager.instance.notification(type: .error)
+                .onChange(of: text.wrappedValue) { _, _ in
+                    if text.wrappedValue.count > textLimit {
+                        text.wrappedValue = String(text.wrappedValue.prefix(textLimit))
+                        HapticManager.instance.notification(type: .warning)
                     }
                 }
                 .padding(.top, 4)
             HStack {
                 Spacer()
-                Text("\(popo.name.count) / 10")
+                Text("\(text.wrappedValue.count) / \(textLimit)")
                     .font(.caption)
-                    .foregroundStyle(popo.name.count >= 10 ? .popoPink.opacity(0.6) : .popoBlack.opacity(0.6))
+                    .foregroundStyle(text.wrappedValue.count >= textLimit ? .popoPink : .popoBlack.opacity(0.6))
             }
         }
-    }
-    
-    var keywordTextFieldSection: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("키워드")
-                .font(.headline)
-            Text("그 사람을 표현할 간단한 키워드를 나열해주면 됩니다.")
-                .font(.caption)
-                .foregroundStyle(.popoBlack.opacity(0.6))
-            TextField("ex) 초록, 빈티지, 최고 ENFP, ...", text: $popo.keyword)
-                .font(.system(size: 16))
-                .padding(.vertical, 8)
-                .padding(.horizontal, 6)
-                .background(.white.opacity(0.85))
-                .clipShape(RoundedRectangle(cornerRadius: 5))
-                .overlay{
-                    RoundedRectangle(cornerRadius: 5)
-                        .stroke(lineWidth: 2)
-                        .foregroundStyle(.popoBlack.opacity(0.6))
-                }
-                .onChange(of: popo.keyword) { _, _ in
-                    if popo.keyword.count > 25 {
-                        popo.keyword = String(popo.keyword.prefix(25))
-                        HapticManager.instance.notification(type: .error)
-                    }
-                }
-                .padding(.top, 4)
-            HStack {
-                Spacer()
-                Text("\(popo.keyword.count) / 25")
-                    .font(.caption)
-                    .foregroundStyle(popo.keyword.count >= 25 ? .popoPink.opacity(0.6) : .popoBlack.opacity(0.6))
-            }
-        }
+        .foregroundStyle(.popoBlack)
     }
     
     var likeSection: some View {
         Toggle(isOn: $popo.isLiked) {
             Text("즐겨찾기")
+                .foregroundStyle(.popoBlack)
                 .font(.headline)
         }
         .tint(.popoGreen)
@@ -181,16 +152,24 @@ extension PopoRegist {
     
     var registerButton: some View {
         Button {
-            modelData.popos.append(popo)
+            if let index = editTargetIndex {
+                needResort = modelData.needResort(by: popo, at: index)
+                modelData.updateBasicInfo(popo: popo, index: index)
+            } else {
+                needResort = true
+                modelData.popos.append(popo)
+            }
+            
             self.presentationMode.wrappedValue.dismiss()
         } label: {
-            Text("등록")
+            Text(editTargetIndex == nil ? "등록" : "수정")
+                .fontWeight(.semibold)
         }
         .disabled(popo.name.isEmpty ? true : false)
     }
 }
 
 #Preview {
-    PopoRegist()
+    PopoRegist(popo: .constant(Popo()), editTargetIndex: .constant(nil), needResort: .constant(true))
         .environmentObject(ModelData())
 }

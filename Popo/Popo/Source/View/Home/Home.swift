@@ -12,8 +12,12 @@ struct Home: View {
     
     @State var sortType: SortType = .like
     @State var searchText: String = ""
-    @State var showRegisterSheet: Bool = false
     @State var viewDidLoad: Bool = false
+    @State var needResort: Bool = false
+    
+    @State var showRegisterSheet: Bool = false
+    @State var editTargetIndex: Int? = nil
+    @State var editTargetPopo: Popo = Popo()
     
     var body: some View {
         NavigationStack {
@@ -34,8 +38,7 @@ struct Home: View {
             }
             .searchable(text: $searchText)
             .fullScreenCover(isPresented: $showRegisterSheet) {
-                PopoRegist()
-                    .presentationDetents([.large])
+                PopoRegist(popo: $editTargetPopo, editTargetIndex: $editTargetIndex, needResort: $needResort)
             }
         }
     }
@@ -70,6 +73,8 @@ extension Home {
     
     var addPersonButton: some View {
         Button {
+            editTargetPopo = Popo()
+            editTargetIndex = nil
             showRegisterSheet = true
         } label: {
             Image(systemName: "person.badge.plus")
@@ -88,57 +93,15 @@ extension Home {
                         
                         VStack(spacing: 8) {
                             ForEach(firstLine) { popo in
-                                NavigationLink {
-                                    PopoDetail()
-                                } label: {
-                                    PopoCard(popo: popo,
-                                             width: cardWidth,
-                                             height: popo.height)
-                                }.contextMenu {
-                                    Button(action: {
-                                        // 여기에 첫 번째 메뉴 항목을 눌렀을 때의 액션을 정의
-                                        print("첫 번째 메뉴 액션 실행")
-                                    }) {
-                                        Label("첫 번째 메뉴", systemImage: "star")
-                                    }
-                                    
-                                    Button(action: {
-                                        // 여기에 두 번째 메뉴 항목을 눌렀을 때의 액션을 정의
-                                        print("두 번째 메뉴 액션 실행")
-                                    }) {
-                                        Label("두 번째 메뉴", systemImage: "flag")
-                                    }
-                                }
-                                
+                                popoCell(popo: popo, width: cardWidth)
                             }
                         }
-                        .frame(width: cardWidth)
+                        
                         VStack(spacing: 8) {
                             ForEach(secondLine) { popo in
-                                NavigationLink {
-                                    PopoDetail()
-                                } label: {
-                                    PopoCard(popo: popo,
-                                             width: cardWidth,
-                                             height: popo.height)
-                                }.contextMenu {
-                                    Button(action: {
-                                        // 여기에 첫 번째 메뉴 항목을 눌렀을 때의 액션을 정의
-                                        print("첫 번째 메뉴 액션 실행")
-                                    }) {
-                                        Label("첫 번째 메뉴", systemImage: "star")
-                                    }
-                                    
-                                    Button(action: {
-                                        // 여기에 두 번째 메뉴 항목을 눌렀을 때의 액션을 정의
-                                        print("두 번째 메뉴 액션 실행")
-                                    }) {
-                                        Label("두 번째 메뉴", systemImage: "flag")
-                                    }
-                                }
+                                popoCell(popo: popo, width: cardWidth)
                             }
                         }
-                        .frame(width: cardWidth)
                     }
                 }
             }
@@ -149,10 +112,13 @@ extension Home {
             viewDidLoad = true
             searchText = ""
         }
-        .onChange(of: modelData.popos.count) { _, _ in
-            withAnimation(.easeInOut) {
-                modelData.sortPopos(sortType: sortType)
-                setHeights()
+        .onChange(of: needResort) { oldValue, newValue in
+            if needResort {
+                withAnimation(.easeInOut) {
+                    modelData.sortPopos(sortType: sortType)
+                    setHeights()
+                }
+                needResort = false
             }
         }
         .onChange(of: searchText) { _, _ in
@@ -171,6 +137,40 @@ extension Home {
             withAnimation(.easeInOut) {
                 modelData.sortPopos(sortType: sortType)
                 setHeights()
+            }
+        }
+    }
+    
+    func popoCell(popo: Popo, width: CGFloat) -> some View {
+        return NavigationLink {
+            PopoDetail()
+        } label: {
+            PopoCard(popo: popo,
+                     width: width,
+                     height: popo.height)
+        }.contextMenu {
+            Button {
+                modelData.toggleLike(of: popo)
+                withAnimation {
+                    modelData.sortPopos(sortType: sortType)
+                }
+            } label: {
+                Label(popo.isLiked ? "즐겨찾기 해제" : "즐겨찾기 추가",
+                      systemImage: popo.isLiked ? "star.slash" : "star")
+            }
+            
+            Button {
+                editTargetPopo = popo
+                editTargetIndex = modelData.index(of: popo)
+                showRegisterSheet = true
+            } label: {
+                Label("편집", systemImage: "pencil")
+            }
+            
+            Button(role: .destructive) {
+                modelData.delete(popo: popo)
+            } label: {
+                Label("삭제", systemImage: "trash")
             }
         }
     }
@@ -196,12 +196,43 @@ extension Home {
     }
     
     func setHeights() {
-        let heights = Popo.setHeights(filteredPopos)
+        let heights = setHeights(filteredPopos)
         
         for i in filteredPopos.indices {
             guard let index = modelData.popos.firstIndex(of: filteredPopos[i]) else { return }
             modelData.popos[index].height = heights[i]
         }
+    }
+    
+    func setHeights(_ input: [Popo]) -> [CGFloat] {
+        if input.count == 1 {
+            return [170]
+        }
+        var firstLineSum: CGFloat = 0.0
+        var secondLineSum: CGFloat = 0.0
+        var heights: [CGFloat] = Array(repeating: 0, count: input.count)
+        
+        for i in heights.indices {
+            heights[i] = CGFloat.random(in: 160...280)
+            if (i % 2) == 0 {
+                firstLineSum += heights[i]
+            } else {
+                secondLineSum += heights[i]
+            }
+        }
+        
+        let firstIsLong = firstLineSum > secondLineSum
+        let offset = firstIsLong ? (secondLineSum+40)/firstLineSum : (firstLineSum+140)/secondLineSum
+        
+        for i in heights.indices {
+            if firstIsLong && i % 2 == 0 {
+                heights[i] *= offset
+            } else if !firstIsLong && i % 2 != 0 {
+                heights[i] *= offset
+            }
+        }
+        
+        return heights
     }
 }
 

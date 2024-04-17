@@ -57,44 +57,11 @@ struct Popo: Identifiable, Equatable {
              image: Image("Kumi"),
              keyword: "댄동, 미소의세계, 빈티지 마스터, MZ사진왕, ENFP",
              modifiedDate: Date().addingTimeInterval(-2500)),
-        Popo(name: "일이삼사오육칠팔구십",
+        Popo(name: "한톨",
              image: Image("Hantol"),
-             keyword: "일이삼사오육칠팔구십일이삼사오육칠팔구십일이삼사오",
+             keyword: "디자이너, 개발자, 디발자중 최강, 혼자서도 잘해요, 둘이서도 잘해요",
              modifiedDate: Date().addingTimeInterval(-2500))
     ]
-}
-
-extension Popo {
-    static func setHeights(_ input: [Popo]) -> [CGFloat] {
-        if input.count == 1 {
-            return [170]
-        }
-        var firstLineSum: CGFloat = 0.0
-        var secondLineSum: CGFloat = 0.0
-        var heights: [CGFloat] = Array(repeating: 0, count: input.count)
-        
-        for i in heights.indices {
-            heights[i] = CGFloat.random(in: 160...280)
-            if (i % 2) == 0 {
-                firstLineSum += heights[i]
-            } else {
-                secondLineSum += heights[i]
-            }
-        }
-        
-        let firstIsLong = firstLineSum > secondLineSum
-        let offset = firstIsLong ? (secondLineSum+40)/firstLineSum : (firstLineSum+40)/secondLineSum
-        
-        for i in heights.indices {
-            if firstIsLong && i % 2 == 0 {
-                heights[i] *= offset
-            } else if !firstIsLong && i % 2 != 0 {
-                heights[i] *= offset
-            }
-        }
-        
-        return heights
-    }
 }
 
 enum LikePriority {

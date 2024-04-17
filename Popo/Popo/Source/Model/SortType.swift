@@ -17,6 +17,4 @@ enum SortType: String, CaseIterable {
         case .latest: "최근 등록한 항목"
         }
     }
-    
-    
 }
