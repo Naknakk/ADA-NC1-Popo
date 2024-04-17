@@ -112,6 +112,7 @@ extension Home {
                                 
                             }
                         }
+                        .frame(width: cardWidth)
                         VStack(spacing: 8) {
                             ForEach(secondLine) { popo in
                                 NavigationLink {
@@ -137,6 +138,7 @@ extension Home {
                                 }
                             }
                         }
+                        .frame(width: cardWidth)
                     }
                 }
             }
@@ -145,8 +147,15 @@ extension Home {
         }
         .onAppear {
             viewDidLoad = true
+            searchText = ""
         }
         .onChange(of: modelData.popos.count) { _, _ in
+            withAnimation(.easeInOut) {
+                modelData.sortPopos(sortType: sortType)
+                setHeights()
+            }
+        }
+        .onChange(of: searchText) { _, _ in
             withAnimation(.easeInOut) {
                 modelData.sortPopos(sortType: sortType)
                 setHeights()
@@ -168,20 +177,30 @@ extension Home {
 }
 
 extension Home {
+    var filteredPopos: [Popo] {
+        if searchText.isEmpty {
+            return modelData.popos
+        } else {
+            return modelData.popos.filter{
+                $0.name.lowercased().localizedStandardContains(searchText.lowercased())
+            }
+        }
+    }
     
     var firstLine: [Popo] {
-        return modelData.popos.enumerated().filter{ $0.offset % 2 == 0 }.map{ $0.element }
+        return filteredPopos.enumerated().filter{ $0.offset % 2 == 0 }.map{ $0.element }
     }
     
     var secondLine: [Popo] {
-        return modelData.popos.enumerated().filter{ $0.offset % 2 != 0 }.map{ $0.element }
+        return filteredPopos.enumerated().filter{ $0.offset % 2 != 0 }.map{ $0.element }
     }
     
     func setHeights() {
-        let heights = Popo.setHeights(modelData.popos)
+        let heights = Popo.setHeights(filteredPopos)
         
-        for i in modelData.popos.indices {
-            modelData.popos[i].height = heights[i]
+        for i in filteredPopos.indices {
+            guard let index = modelData.popos.firstIndex(of: filteredPopos[i]) else { return }
+            modelData.popos[index].height = heights[i]
         }
     }
 }

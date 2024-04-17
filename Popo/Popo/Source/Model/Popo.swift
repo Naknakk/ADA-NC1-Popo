@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-struct Popo: Identifiable {
+struct Popo: Identifiable, Equatable {
     let id: UUID = UUID()
     var name: String = ""
     var image: Image = Image("Default")
@@ -66,6 +66,9 @@ struct Popo: Identifiable {
 
 extension Popo {
     static func setHeights(_ input: [Popo]) -> [CGFloat] {
+        if input.count == 1 {
+            return [170]
+        }
         var firstLineSum: CGFloat = 0.0
         var secondLineSum: CGFloat = 0.0
         var heights: [CGFloat] = Array(repeating: 0, count: input.count)
