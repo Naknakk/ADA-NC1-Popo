@@ -11,17 +11,27 @@ struct PopoDetail: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var modelData: ModelData
     
+    @State var showSheet = false
+    @State var isEditing = false
     var popo: Popo
     let imageHeight: CGFloat = 360
     
     var body: some View {
         ScrollView(.vertical) {
-            VStack {
+            VStack(spacing: 24) {
                 banner
                 ForEach(0..<10) { _ in
-                    PopoRecordRow()
+                    PopoRecordRow(showSheet: $showSheet, isEditing: $isEditing)
                 }
             }
+        }
+        .fullScreenCover(isPresented: $showSheet, content: {
+            PopoRecordRegist(isEditing: $isEditing)
+        })
+        .background {
+            Image("PopoBackground")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
         }
         .ignoresSafeArea(edges: [.top, .horizontal])
         .navigationBarBackButtonHidden(true)
@@ -97,6 +107,8 @@ extension PopoDetail {
 
     var addRecordButton: some View {
         Button {
+            showSheet = true
+            isEditing = false
             print("add")
         } label: {
             RoundedRectangle(cornerRadius: 9)
@@ -129,4 +141,5 @@ extension PopoDetail {
 
 #Preview {
     PopoDetail(popo: ModelData().popos[2])
+        .environmentObject(ModelData())
 }

@@ -43,7 +43,11 @@ struct PopoRegist: View {
             .contentMargins(.bottom, 36, for: .scrollContent)
             .navigationTitle(editTargetIndex == nil ? "나의 Popo 추가하기" : "수정하기")
             .navigationBarTitleDisplayMode(.inline)
-            .background(Color.popoBrown30)
+            .background {
+                Image("PopoBackground")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     cancelButton

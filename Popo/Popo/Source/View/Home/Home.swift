@@ -27,7 +27,11 @@ struct Home: View {
             }
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
-            .background(Color.popoBrown30)
+            .background {
+                Image("PopoBackground")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     header

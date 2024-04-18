@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct PopoRecordRow: View {
+    @Binding var showSheet: Bool
+    @Binding var isEditing: Bool
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             textRecord
@@ -21,10 +24,10 @@ struct PopoRecordRow: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay {
             RoundedRectangle(cornerRadius: 12)
-                .stroke(.popoBlack.opacity(0.6), lineWidth: 2.0)
+                .stroke(.popoBlack.opacity(0.6), lineWidth: 3.0)
         }
         
-        .padding()
+        .padding(.horizontal, 16)
     }
 }
 
@@ -63,6 +66,8 @@ extension PopoRecordRow {
                 .foregroundStyle(.popoBlack.opacity(0.6))
             Spacer()
             Button {
+                isEditing = true
+                showSheet = true
                 print("More")
             } label: {
                 Image(systemName: "ellipsis")
@@ -75,5 +80,5 @@ extension PopoRecordRow {
 }
 
 #Preview {
-    PopoRecordRow()
+    PopoRecordRow(showSheet: .constant(false), isEditing: .constant(false))
 }
