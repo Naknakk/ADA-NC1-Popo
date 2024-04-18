@@ -92,25 +92,35 @@ extension Home {
                         let cardWidth = (proxy.size.width - 24 - 8) / 2
                         
                         VStack(spacing: 8) {
+                            Rectangle()
+                                .frame(height: 8)
+                                .foregroundStyle(.clear)
                             ForEach(firstLine) { popo in
                                 popoCell(popo: popo, width: cardWidth)
                             }
                         }
+                        .frame(width: cardWidth)
                         
                         VStack(spacing: 8) {
+                            Rectangle()
+                                .frame(height: 8)
+                                .foregroundStyle(.clear)
                             ForEach(secondLine) { popo in
                                 popoCell(popo: popo, width: cardWidth)
                             }
                         }
+                        .frame(width: cardWidth)
                     }
                 }
             }
-            .contentMargins([.top, .bottom], 16, for: .scrollContent)
+            .contentMargins(.bottom, 16, for: .scrollContent)
             
         }
         .onAppear {
             viewDidLoad = true
-            searchText = ""
+            withAnimation(.easeInOut) {
+                modelData.sortPopos(sortType: sortType)
+            }
         }
         .onChange(of: needResort) { oldValue, newValue in
             if needResort {
@@ -122,7 +132,7 @@ extension Home {
             }
         }
         .onChange(of: searchText) { _, _ in
-            withAnimation(.easeInOut) {
+            withAnimation(.easeInOut(duration: 0.2)) {
                 modelData.sortPopos(sortType: sortType)
                 setHeights()
             }
@@ -143,7 +153,7 @@ extension Home {
     
     func popoCell(popo: Popo, width: CGFloat) -> some View {
         return NavigationLink {
-            PopoDetail()
+            PopoDetail(popo: popo)
         } label: {
             PopoCard(popo: popo,
                      width: width,
@@ -222,7 +232,7 @@ extension Home {
         }
         
         let firstIsLong = firstLineSum > secondLineSum
-        let offset = firstIsLong ? (secondLineSum+40)/firstLineSum : (firstLineSum+140)/secondLineSum
+        let offset = firstIsLong ? (secondLineSum+100)/firstLineSum : (firstLineSum+100)/secondLineSum
         
         for i in heights.indices {
             if firstIsLong && i % 2 == 0 {

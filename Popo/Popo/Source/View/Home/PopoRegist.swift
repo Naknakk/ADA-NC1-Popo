@@ -16,7 +16,7 @@ struct PopoRegist: View {
     @Binding var needResort: Bool
     
     @State private var isImagePickerDisplayed = false
-    @State var image: Image? = nil
+    @State var image: Image? = Image("Default")
     
     var body: some View {
         NavigationStack {
@@ -40,12 +40,13 @@ struct PopoRegist: View {
                 }
                 .padding()
             }
-            .background(Color.popoBrown30)
+            .contentMargins(.bottom, 36, for: .scrollContent)
             .navigationTitle(editTargetIndex == nil ? "나의 Popo 추가하기" : "수정하기")
             .navigationBarTitleDisplayMode(.inline)
+            .background(Color.popoBrown30)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                   cancelButton
+                    cancelButton
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     registerButton
@@ -60,16 +61,27 @@ extension PopoRegist {
     var imagePicker: some View {
         HStack {
             Spacer()
-            Button {
-                isImagePickerDisplayed = true
-            } label : {
-                ZStack(alignment: .bottomTrailing) {
+            ZStack(alignment: .bottomTrailing) {
+                Button {
+                    isImagePickerDisplayed = true
+                } label : {
                     popo.image
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 150, height: 200)
                         .clipShape(RoundedRectangle(cornerRadius: 15))
-                    
+                }
+                .contextMenu {
+                    Button(role: .destructive) {
+                        image = nil
+                    } label: {
+                        Text("이미지 삭제")
+                    }
+                }
+                
+                Button {
+                    isImagePickerDisplayed = true
+                } label : {
                     Image(systemName: "camera.fill")
                         .foregroundStyle(.white)
                         .font(.title3)
@@ -79,14 +91,16 @@ extension PopoRegist {
                         .offset(x: 12, y: 6)
                 }
             }
-            .fullScreenCover(isPresented: $isImagePickerDisplayed) {
+            .sheet(isPresented: $isImagePickerDisplayed) {
                 ImagePicker(selectedImage: $image)
             }
+            
             Spacer()
         }
         .onChange(of: image) { _, _ in
             popo.image = image ?? Image("Default")
         }
+        
     }
     
     func textfieldSection(text: Binding<String>, textLimit: Int, sectionTitle: String, caption: String, placeHolder: String, isEssential: Bool) -> some View {
@@ -99,7 +113,7 @@ extension PopoRegist {
                 }
             }
             .font(.headline)
-           
+            
             Text(caption)
                 .font(.caption)
                 .foregroundStyle(.popoBlack.opacity(0.6))
@@ -165,7 +179,7 @@ extension PopoRegist {
             Text(editTargetIndex == nil ? "등록" : "수정")
                 .fontWeight(.semibold)
         }
-        .disabled(popo.name.isEmpty ? true : false)
+        .disabled(popo.name.isEmpty)
     }
 }
 

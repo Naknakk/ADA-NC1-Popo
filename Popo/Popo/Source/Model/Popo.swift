@@ -34,7 +34,7 @@ struct Popo: Identifiable, Equatable {
              modifiedDate: Date().addingTimeInterval(-3500)),
         Popo(name: "윤슬",
              image: Image("Yunmin"),
-             keyword: "심리학과, 디자인공부 시작, 솝트, 사진, 브런치 작가, 바보래요",
+             keyword: "심리학과, 디자인공부 시작, 솝트, 사진, 브런치작가, 바보래요",
              isLiked: true,
              modifiedDate: Date().addingTimeInterval(-5000)),
         Popo(name: "윈터",
@@ -60,7 +60,13 @@ struct Popo: Identifiable, Equatable {
         Popo(name: "한톨",
              image: Image("Hantol"),
              keyword: "디자이너, 개발자, 디발자중 최강, 혼자서도 잘해요, 둘이서도 잘해요",
-             modifiedDate: Date().addingTimeInterval(-2500))
+             modifiedDate: Date().addingTimeInterval(-2500)),
+        Popo(name: "타냐",
+             image: Image("Tanya"),
+             keyword: "샹냥한 ISTP, 멋진 붕붕이의 주인, 백준 라이벌"),
+        Popo(name: "구리구리",
+             image: Image("Guryss"),
+             keyword: "ESTJ, 멋쟁이, 웹소소, 써멀구리스;;, 냥집사")
     ]
 }
 
