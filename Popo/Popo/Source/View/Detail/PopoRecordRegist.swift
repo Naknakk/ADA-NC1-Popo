@@ -18,13 +18,13 @@ struct PopoRecordRegist: View {
         NavigationStack {
             ScrollView(.vertical) {
                 VStack(spacing: 24) {
-                    textfieldSection(text: $title,
+                    TextFieldSection(text: $title,
                                      textLimit: 10,
                                      sectionTitle: "제목",
                                      caption: nil,
                                      placeHolder: "제목을 입력해주세요.",
                                      isEssential: true)
-                    textfieldSection(text: $description,
+                    TextFieldSection(text: $description,
                                      textLimit: 30,
                                      sectionTitle: "내용",
                                      caption: nil,
@@ -66,10 +66,10 @@ struct PopoRecordRegist: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    cancelButton
+                    CancelButton
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    registerButton
+                    RegisterButton
                 }
             }
         }
@@ -78,68 +78,7 @@ struct PopoRecordRegist: View {
 }
 
 extension PopoRecordRegist {
-    func textfieldSection(text: Binding<String>, textLimit: Int, sectionTitle: String, caption: String?, placeHolder: String, isEssential: Bool, isTextEditor: Bool = false) -> some View {
-        return VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 2) {
-                Text(sectionTitle)
-                if isEssential {
-                    Text("*")
-                        .foregroundStyle(.popoPink)
-                }
-            }
-            .font(.headline)
-            if let caption = caption {
-                Text(caption)
-                    .font(.caption)
-                    .foregroundStyle(.popoBlack.opacity(0.6))
-            }
-            if isTextEditor {
-                TextEditor(text: text)
-                    .font(.system(size: 16))
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 6)
-                    .background(.white.opacity(0.85))
-                    .clipShape(RoundedRectangle(cornerRadius: 5))
-                    .overlay{
-                        RoundedRectangle(cornerRadius: 5)
-                            .stroke(lineWidth: 2)
-                            .foregroundStyle(.popoBlack.opacity(0.6))
-                    }
-                    .frame(height: 250)
-                    .padding(.top, 8)
-            } else {
-                TextField(placeHolder, text: text)
-                    .font(.system(size: 16))
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 6)
-                    .background(.white.opacity(0.85))
-                    .clipShape(RoundedRectangle(cornerRadius: 5))
-                    .overlay{
-                        RoundedRectangle(cornerRadius: 5)
-                            .stroke(lineWidth: 2)
-                            .foregroundStyle(.popoBlack.opacity(0.6))
-                    }
-                    .padding(.top, 8)
-                    .onChange(of: text.wrappedValue) { _, _ in
-                        if text.wrappedValue.count > textLimit {
-                            text.wrappedValue = String(text.wrappedValue.prefix(textLimit))
-                            HapticManager.instance.notification(type: .warning)
-                        }
-                    }
-                HStack {
-                    Spacer()
-                    Text("\(text.wrappedValue.count) / \(textLimit)")
-                        .font(.caption)
-                        .foregroundStyle(text.wrappedValue.count >= textLimit ? .popoPink : .popoBlack.opacity(0.6))
-                }
-            }
-            
-            
-        }
-        .foregroundStyle(.popoBlack)
-    }
-    
-    var cancelButton: some View {
+    var CancelButton: some View {
         Button {
             self.presentationMode.wrappedValue.dismiss()
         } label: {
@@ -148,7 +87,7 @@ extension PopoRecordRegist {
         .tint(.popoPink)
     }
     
-    var registerButton: some View {
+    var RegisterButton: some View {
         Button {
             self.presentationMode.wrappedValue.dismiss()
         } label: {
